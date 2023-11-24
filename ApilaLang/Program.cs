@@ -56,8 +56,6 @@ namespace ApilaLang {
             string rawContents = File.ReadAllText(apilaFile);
             Regex regex = new Regex(@"\s+");
             apilaCode = regex.Split(rawContents).Where(s => !string.IsNullOrEmpty(s)).ToArray();
-            //apilaCode = Array.FindAll(apilaCode, s => !string.IsNullOrEmpty(s));
-            //apilaCode = rawContents.Split(new char[] { ' ', '\n' /*other white space characters go here*/}, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
          } catch (Exception e) {
             Console.WriteLine($"Error: {e.Message}");
             return;
@@ -68,20 +66,19 @@ namespace ApilaLang {
 
             switch (tokenType) {
                case TokenType.Unknown: {
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it maybe a bug in programming language */
+                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
                   
                   // TODO: Print line and column number
                   Console.WriteLine($"Error: Unknown token \"{apilaCode[ii]}\".");
                   return;
                }
                case TokenType.StackElement: {
-                  //stack.Push(double.Parse(apilaCode[i]));
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it maybe a bug in programming language */
+                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
                   commandBuffer.Add(() => stack.Push(double.Parse(apilaCode[ii])));
                   break;
                }
                case TokenType.Operator: {
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it maybe a bug in programming language */
+                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
 
                   OperatorType operatorType = GetOperatorType(apilaCode[ii]);
 
@@ -89,14 +86,10 @@ namespace ApilaLang {
                   try {
                      switch (operatorType) {
                         case OperatorType.Add: {
-                           //stack.Push(stack.Pop() + stack.Pop());
                            commandBuffer.Add(() => stack.Push(stack.Pop() + stack.Pop()));
                            break;
                         }
                         case OperatorType.Substract: {
-                           //double first = stack.Pop();
-                           //double second = stack.Pop();
-                           //stack.Push(second - first);
                            commandBuffer.Add(() => {
                               double first = stack.Pop();
                               double second = stack.Pop();
@@ -105,14 +98,10 @@ namespace ApilaLang {
                            break;
                         }
                         case OperatorType.Multiply: {
-                           //stack.Push(stack.Pop() * stack.Pop());
                            commandBuffer.Add(() => stack.Push(stack.Pop() * stack.Pop()));
                            break;
                         }
                         case OperatorType.Divide: {
-                           //double first = stack.Pop();
-                           //double second = stack.Pop();
-                           //stack.Push(second / first);
                            commandBuffer.Add(() => {
                               double first = stack.Pop();
                               double second = stack.Pop();
@@ -121,28 +110,10 @@ namespace ApilaLang {
                            break;
                         }
                         case OperatorType.Print: {
-                           //Console.WriteLine(stack.Pop());
                            commandBuffer.Add(() => Console.WriteLine(stack.Pop()));
                            break;
                         }
                         case OperatorType.Switch: {
-                           //int firstIndex = (int)stack.Pop();
-                           //int secondIndex = (int)stack.Pop();
-
-                           //double first;
-                           //double second;
-
-                           //try {
-                           //   first = stack[firstIndex];
-                           //   second = stack[secondIndex];
-                           //} catch (ArgumentOutOfRangeException) {
-                           //   // TODO: Print line and column number
-                           //   Console.WriteLine($"Error: At least one of the specified indexes were out of range in \"switch\". The specified indexes: \"{firstIndex}\" and \"{secondIndex}\"");
-                           //   return;
-                           //}
-
-                           //stack[firstIndex] = second;
-                           //stack[secondIndex] = first;
                            commandBuffer.Add(() => {
                               int firstIndex = (int)stack.Pop();
                               int secondIndex = (int)stack.Pop();
@@ -165,15 +136,10 @@ namespace ApilaLang {
                            break;
                         }
                         case OperatorType.Duplicate: {
-                           //stack.Push(stack.Peek());
                            commandBuffer.Add(() => stack.Push(stack.Peek()));
                            break;
                         }
                         case OperatorType.Goto: {
-                           //string label = apilaCode[i + 1];
-                           //int labelIndex = Array.FindIndex(apilaCode, i + 1, s => s == label);
-
-                           //if (labelIndex == -1) { }
                            commandBuffer.Add(() => {
                               string label = apilaCode[ii + 1];
                               indexOfCommandToExecute = labels.Where(l => l.name == $"{label}:").First().commandIndex;
@@ -190,7 +156,7 @@ namespace ApilaLang {
                   break;
                }
                case TokenType.Label: {
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it maybe a bug in programming language */
+                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
 
                   if (labels.Where(l => l.name == apilaCode[ii]).Count() > 0) {
                      Console.WriteLine($"Error: You have two labels with the same name. The label: \"{apilaCode[ii]}\"");
