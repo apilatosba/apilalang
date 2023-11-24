@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.8.34316.72
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApilaLang", "ApilaLang\ApilaLang.csproj", "{B55A02F5-B998-457F-98E9-B310305E7AE0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B55A02F5-B998-457F-98E9-B310305E7AE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B55A02F5-B998-457F-98E9-B310305E7AE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B55A02F5-B998-457F-98E9-B310305E7AE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B55A02F5-B998-457F-98E9-B310305E7AE0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {48EF5B4E-C0A6-4973-8E9A-D8237EF575B5}
+	EndGlobalSection
+EndGlobal
