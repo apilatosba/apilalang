@@ -10,4 +10,8 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Examples\" />
+  </ItemGroup>
+
 </Project>

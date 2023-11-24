@@ -52,38 +52,39 @@ namespace ApilaLang {
             }
          }
 
-         try {
-            string rawContents = File.ReadAllText(apilaFile);
-            Regex regex = new Regex(@"\s+");
-            apilaCode = regex.Split(rawContents).Where(s => !string.IsNullOrEmpty(s)).ToArray();
-         } catch (Exception e) {
-            Console.WriteLine($"Error: {e.Message}");
-            return;
+         // Read the file
+         {
+            try {
+               string rawContents = File.ReadAllText(apilaFile);
+               Regex regex = new Regex(@"\s+");
+               apilaCode = regex.Split(rawContents).Where(s => !string.IsNullOrEmpty(s)).ToArray();
+            } catch (Exception e) {
+               Console.WriteLine($"Error: {e.Message}");
+               return;
+            }
          }
 
-         for (int i = 0; i < apilaCode.Length; i++) {
-            TokenType tokenType = FindTokenType(apilaCode[i]);
+         // Parse the file into commandBuffer
+         {
+            for (int i = 0; i < apilaCode.Length; i++) {
+               TokenType tokenType = FindTokenType(apilaCode[i]);
 
-            switch (tokenType) {
-               case TokenType.Unknown: {
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
-                  
-                  // TODO: Print line and column number
-                  Console.WriteLine($"Error: Unknown token \"{apilaCode[ii]}\".");
-                  return;
-               }
-               case TokenType.StackElement: {
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
-                  commandBuffer.Add(() => stack.Push(double.Parse(apilaCode[ii])));
-                  break;
-               }
-               case TokenType.Operator: {
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
+               switch (tokenType) {
+                  case TokenType.Unknown: {
+                     int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
 
-                  OperatorType operatorType = GetOperatorType(apilaCode[ii]);
+                     // TODO: Print line and column number
+                     Console.WriteLine($"Error: Unknown token \"{apilaCode[ii]}\".");
+                     return;
+                  }
+                  case TokenType.StackElement: {
+                     int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
+                     commandBuffer.Add(() => stack.Push(double.Parse(apilaCode[ii])));
+                     break;
+                  }
+                  case TokenType.Operator: {
+                     OperatorType operatorType = GetOperatorType(apilaCode[i]);
 
-                  // TODO: try catch block should be moved to execution of commands
-                  try {
                      switch (operatorType) {
                         case OperatorType.Add: {
                            commandBuffer.Add(() => stack.Push(stack.Pop() + stack.Pop()));
@@ -127,7 +128,8 @@ namespace ApilaLang {
                               } catch (ArgumentOutOfRangeException) {
                                  // TODO: Print line and column number
                                  Console.WriteLine($"Error: At least one of the specified indexes were out of range in \"switch\". The specified indexes: \"{firstIndex}\" and \"{secondIndex}\"");
-                                 return; // TODO return to exit. this is not the only place where this happens
+                                 Environment.Exit(1);
+                                 return;
                               }
 
                               stack[firstIndex] = second;
@@ -140,38 +142,52 @@ namespace ApilaLang {
                            break;
                         }
                         case OperatorType.Goto: {
+                           int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
+
                            commandBuffer.Add(() => {
                               string label = apilaCode[ii + 1];
-                              indexOfCommandToExecute = labels.Where(l => l.name == $"{label}:").First().commandIndex;
+                              indexOfCommandToExecute = labels.Where(l => l.name == $"{label}:").First().commandIndex - 1; // Substract 1 because the for loop will add 1 to it
                            });
+
+                           i++; // Skip the label name
+                           break;
+                        }
+                        case OperatorType.Sleep: {
+                           commandBuffer.Add(() => System.Threading.Thread.Sleep((int)stack.Pop()));
                            break;
                         }
                      }
-                  } catch (InvalidOperationException) {
-                     // TODO: Print line and column number
-                     Console.WriteLine($"Error: Not enough elements in the stack to perform the operation \"{apilaCode[ii]}\".");
-                     return;
+
+                     break;
                   }
+                  case TokenType.Label: {
+                     if (labels.Where(l => l.name == apilaCode[i]).Count() > 0) {
+                        Console.WriteLine($"Error: You have two labels with the same name. The label: \"{apilaCode[i]}\"");
+                        return;
+                     } else {
+                        labels.Add(new Label(apilaCode[i], i, commandBuffer.Count));
+                     }
 
-                  break;
-               }
-               case TokenType.Label: {
-                  int ii = i; /* This shouldnt matter. It is crazy. I dont even know, it may be a bug in programming language */
-
-                  if (labels.Where(l => l.name == apilaCode[ii]).Count() > 0) {
-                     Console.WriteLine($"Error: You have two labels with the same name. The label: \"{apilaCode[ii]}\"");
-                     return;
-                  } else {
-                     labels.Add(new Label(apilaCode[ii], ii, commandBuffer.Count));
+                     break;
                   }
-
-                  break;
                }
             }
          }
 
-         for (;indexOfCommandToExecute < commandBuffer.Count; indexOfCommandToExecute++) {
-            commandBuffer[indexOfCommandToExecute]();
+         // Execute the commands
+         {
+            try {
+               for (; indexOfCommandToExecute < commandBuffer.Count; indexOfCommandToExecute++) {
+                  commandBuffer[indexOfCommandToExecute]();
+               }
+            } catch (Exception e) when (e is InvalidOperationException || e is ArgumentOutOfRangeException) {
+               // TODO: Print line and column number
+               Console.WriteLine($"Error: Not enough elements in the stack to perform the operation.");
+               return;
+            } catch (Exception e) {
+               Console.WriteLine($"Error: {e.Message}");
+               return;
+            }
          }
       }
 
@@ -188,7 +204,7 @@ namespace ApilaLang {
             return TokenType.StackElement;
          } else if (Operator.operators.ContainsKey(word)) {
             return TokenType.Operator;
-         } else if (word.EndsWith(":")) { 
+         } else if (word.EndsWith(":")) {
             return TokenType.Label;
          } else {
             return TokenType.Unknown;

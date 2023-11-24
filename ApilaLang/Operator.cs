@@ -14,6 +14,7 @@ namespace ApilaLang {
          { "switch", OperatorType.Switch },
          { "dup", OperatorType.Duplicate },
          { "goto", OperatorType.Goto },
+         { "sleep", OperatorType.Sleep },
       };
    }
 
@@ -26,5 +27,6 @@ namespace ApilaLang {
       Switch, /* Switches two elements in the stack with given indexes */
       Duplicate, /* Duplicates the top element in the stack */
       Goto, /* Jumps to the specified label. Label is specified AFTER the goto keyword */
+      Sleep, /* Sleeps for the specified amount of milliseconds */
    }
 }
