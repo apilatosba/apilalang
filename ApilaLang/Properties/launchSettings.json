@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ApilaLang": {
+      "commandName": "Project",
+      "commandLineArgs": "apila.apila",
+      "workingDirectory": "C:\\Users\\abdul\\source\\repos\\ApilaLang\\ApilaLang"
+    }
+  }
+}
