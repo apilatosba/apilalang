@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace ApilaLang {
-   internal class Program {
+   internal partial class Program {
       static ApilaStack<double> stack = new ApilaStack<double>();
       static string apilaFile;
       static string[] apilaCode;
@@ -13,8 +14,20 @@ namespace ApilaLang {
       /// Label name, index pairs. The index is the index of the label in the apilaCode array.
       /// </summary>
       static HashSet<Label> labels = new HashSet<Label>();
+      static List<CurlyBrace> curlyBraces = new List<CurlyBrace>();
+      static HashSet<Else> elses = new HashSet<Else>();
+      /// <summary>
+      /// Name of the procedure is stored without the leading dot
+      /// </summary>
+      static Dictionary<string, List<Action>> procedures = new Dictionary<string, List<Action>>();
+      /// <summary>
+      /// The key is the index of the open curly brace and the value is the index of the close curly brace.
+      /// This buffer may be unnecessary. I am not sure.
+      /// </summary>
+      //static Dictionary<CurlyBrace, CurlyBrace> curlyBracesOfIfs = new Dictionary<CurlyBrace, CurlyBrace>();
       static List<Action> commandBuffer = new List<Action>();
       static int indexOfCommandToExecute = 0;
+      static bool shouldExecuteElseBlock;
 
       static void Main(string[] args) {
          // Command line arguments
@@ -156,12 +169,61 @@ namespace ApilaLang {
                            commandBuffer.Add(() => System.Threading.Thread.Sleep((int)stack.Pop()));
                            break;
                         }
-                     }
+                        case OperatorType.If: {
+                           if (apilaCode[i + 1] != "{") {
+                              Console.WriteLine("Error: The keyword if must have been followed by \"{\"");
+                              Environment.Exit(1);
+                           } else {
+                              int ii = curlyBraces.Count; /* Maybe this ii thingy is not be a bug. I have to think about it */
 
+                              commandBuffer.Add(() => {
+                                 double top = stack.Pop();
+
+                                 if (top == 0) {
+                                    indexOfCommandToExecute = curlyBraces[ii].matchingCurlyBrace.commandIndex - 1; // Substract 1 because the for loop will add 1 to it
+                                    shouldExecuteElseBlock = true;
+                                 } else {
+                                    //indexOfCommandToExecute = curlyBraces[ii].commandIndex;
+                                    // Or do nothing which does the same thing. Both of them continue the execution without jumping.
+                                    shouldExecuteElseBlock = false;
+                                 }
+                              });
+                           }
+                           break;
+                        }
+                        case OperatorType.Equals: {
+                           commandBuffer.Add(() => stack.Push(stack.Pop() == stack.Pop() ? 1 : 0));
+                           break;
+                        }
+                        case OperatorType.LessThan: {
+                           commandBuffer.Add(() => {
+                              double first = stack.Pop();
+                              double second = stack.Pop();
+                              stack.Push(second < first ? 1 : 0);
+                           });
+                           break;
+                        }
+                        case OperatorType.GreaterThan: {
+                           commandBuffer.Add(() => {
+                              double first = stack.Pop();
+                              double second = stack.Pop();
+                              stack.Push(second > first ? 1 : 0);
+                           });
+                           break;
+                        }
+                        case OperatorType.Not: {
+                           commandBuffer.Add(() => stack.Push(stack.Pop() == 0 ? 1 : 0));
+                           break;
+                        }
+                        case OperatorType.Drop: {
+                           commandBuffer.Add(() => stack.Pop());
+                           break;
+                        }
+                     }
                      break;
                   }
                   case TokenType.Label: {
-                     if (labels.Where(l => l.name == apilaCode[i]).Count() > 0) {
+                     if (labels.Where(l => l.name == apilaCode[i]).Any()) {
                         Console.WriteLine($"Error: You have two labels with the same name. The label: \"{apilaCode[i]}\"");
                         return;
                      } else {
@@ -170,6 +232,101 @@ namespace ApilaLang {
 
                      break;
                   }
+                  case TokenType.OpenCurlyBrace: {
+                     curlyBraces.Add(new CurlyBrace(TokenType.OpenCurlyBrace, i, commandBuffer.Count));
+                     break;
+                  }
+                  case TokenType.CloseCurlyBrace: {
+                     curlyBraces.Add(new CurlyBrace(TokenType.CloseCurlyBrace, i, commandBuffer.Count));
+                     break;
+                  }
+                  case TokenType.Else: {
+                     if (apilaCode[i - 1] != "}") {
+                        Console.WriteLine("Error: The keyword else must have been preceded by \"}\"");
+                        return;
+                     } else if (apilaCode[i + 1] != "{") {
+                        Console.WriteLine("Error: The keyword else must have been succeeded by \"{\"");
+                        return;
+                     } else {
+                        int ii = curlyBraces.Count; /* Maybe this ii thingy is not be a bug. I have to think about it */
+
+                        elses.Add(new Else(ii - 1, ii, i)); // Putting i here is no problem because it is executed directly here but not after in the commandBuffer
+
+                        commandBuffer.Add(() => {
+                           if (shouldExecuteElseBlock) {
+                              //indexOfCommandToExecute = curlyBraces[ii].commandIndex;
+                              // Or do nothing which does the same thing. Both of them continue the execution without jumping.
+                           } else {
+                              indexOfCommandToExecute = curlyBraces[ii].matchingCurlyBrace.commandIndex - 1; // Substract 1 because the for loop will add 1 to it
+                           }
+                        });
+                     }
+                     break;
+                  }
+                  //case TokenType.ProcedureDefinition: {
+                  //   string procedureName = apilaCode[i].Substring(1);
+
+                  //   if (procedures.ContainsKey(procedureName)) {
+                  //      Console.WriteLine($"Error: You have two procedure definitons with the same name. The procedure: \"{apilaCode[i]}\"");
+                  //      return;
+                  //   } else {
+                  //      if (apilaCode[i + 1] != "{") {
+                  //         Console.WriteLine("Error: The procedure definition must be within a scope so it should start with \"{\"");
+                  //         return;
+                  //      }
+
+                  //      int ii = curlyBraces.Count;
+                  //      int numberOfCommandsToSkip = 0;
+
+                  //      commandBuffer.Add(() => {
+                  //         numberOfCommandsToSkip = curlyBraces[ii].matchingCurlyBrace.commandIndex - curlyBraces[ii].commandIndex;
+                  //         List<Action> commands = new List<Action>();
+
+
+                  //      })
+
+                  //      i += numberOfCommandsToSkip;
+                  //   }
+                  //   break;
+                  //}
+               }
+            }
+         }
+
+         // Match the curly braces
+         {
+            for (int i = 0; i < curlyBraces.Count; i++) {
+               if (curlyBraces[i].type == TokenType.OpenCurlyBrace) {
+                  int matchingIndex;
+                  try {
+                     matchingIndex = FindCurlyBracePair(i, curlyBraces);
+                  } catch (KeyNotFoundException) {
+                     // TODO: Print line and column number
+                     Console.WriteLine("Error: You are missing curly braces. The program was unable to find one of the matching curly brace pair.");
+                     return;
+                  }
+                  CurlyBrace matchingCurlyBrace = curlyBraces[matchingIndex];
+
+                  curlyBraces[i].matchingCurlyBrace = matchingCurlyBrace;
+                  matchingCurlyBrace.matchingCurlyBrace = curlyBraces[i];
+               } else if (curlyBraces[i].type == TokenType.CloseCurlyBrace) {
+                  if (curlyBraces[i].matchingCurlyBrace == null) {
+                     Console.WriteLine("Error: You are missing curly braces. The program was unable to find one of the matching curly brace pair.");
+                     return;
+                  }
+               } else {
+                  Debug.Assert(false, "The curly brace is not a curly brace");
+               }
+            }
+         }
+
+         // Check the elses whether they are in correct syntax. Half of the check is done in the parsing phase.
+         {
+            foreach (Else e in elses) {
+               if (!(apilaCode[curlyBraces[e.indexOfPrecedingCurlyBrace].matchingCurlyBrace.tokenIndex - 1] == Operator.operators.First(pair => pair.Value == OperatorType.If).Key)) {
+                  // TODO: Print line and column number
+                  Console.WriteLine("Error: Where is the if of your else lil bro");
+                  return;
                }
             }
          }
@@ -186,6 +343,7 @@ namespace ApilaLang {
                return;
             } catch (Exception e) {
                Console.WriteLine($"Error: {e.Message}");
+               Console.WriteLine($"   indexOfCommandToExecute = {indexOfCommandToExecute}");
                return;
             }
          }
@@ -193,26 +351,62 @@ namespace ApilaLang {
 
       static void PrintHelp() {
          Console.WriteLine("Usage:");
-         Console.WriteLine("  apila {file} [-h | --help]");
+         Console.WriteLine("   apila {file} [-h | --help]");
          Console.WriteLine();
          Console.WriteLine("file: The file that includes the source code.");
          Console.WriteLine("-h, --help: Print this help and exit.");
       }
 
-      static TokenType FindTokenType(string word) {
-         if (double.TryParse(word, out _)) {
-            return TokenType.StackElement;
-         } else if (Operator.operators.ContainsKey(word)) {
-            return TokenType.Operator;
-         } else if (word.EndsWith(":")) {
-            return TokenType.Label;
-         } else {
-            return TokenType.Unknown;
-         }
-      }
-
       static OperatorType GetOperatorType(string word) {
          return Operator.operators[word];
+      }
+
+      /// <summary>
+      /// You give the index of the first curly brace and it returns the index of the matching curly brace.
+      /// </summary>
+      static int FindCurlyBracePair(int index, List<CurlyBrace> curlyBraces) {
+         CurlyBrace curlyBrace = curlyBraces[index];
+
+         switch (curlyBrace.type) {
+            case TokenType.OpenCurlyBrace: {
+               int curlyBraceCount = 1;
+
+               for (int i = index + 1; i < curlyBraces.Count; i++) {
+                  if (curlyBraces[i].type == TokenType.OpenCurlyBrace) {
+                     curlyBraceCount++;
+                  } else if (curlyBraces[i].type == TokenType.CloseCurlyBrace) {
+                     curlyBraceCount--;
+                  }
+
+                  if (curlyBraceCount == 0) {
+                     return i;
+                  }
+               }
+
+               throw new KeyNotFoundException("No matching curly brace found.");
+            }
+            case TokenType.CloseCurlyBrace: {
+               int curlyBraceCount = 1;
+
+               for (int i = index - 1; i >= 0; i--) {
+                  if (curlyBraces[i].type == TokenType.OpenCurlyBrace) {
+                     curlyBraceCount--;
+                  } else if (curlyBraces[i].type == TokenType.CloseCurlyBrace) {
+                     curlyBraceCount++;
+                  }
+
+                  if (curlyBraceCount == 0) {
+                     return i;
+                  }
+               }
+
+               throw new KeyNotFoundException("No matching curly brace found.");
+            }
+            default: {
+               Debug.Assert(false, "The curly brace is not a curly brace");
+               return -1;
+            }
+         }
       }
    }
 }

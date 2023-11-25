@@ -1,0 +1,15 @@
+0 0 1 
+
+start: {
+   dup print
+   dup
+   0 2 switch
+   +
+   0 2 switch
+   1 +
+   dup 1000 = if {
+      goto end
+   }
+   0 2 switch
+} goto start
+end:

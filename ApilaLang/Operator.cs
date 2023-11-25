@@ -15,6 +15,12 @@ namespace ApilaLang {
          { "dup", OperatorType.Duplicate },
          { "goto", OperatorType.Goto },
          { "sleep", OperatorType.Sleep },
+         { "if", OperatorType.If },
+         { "=", OperatorType.Equals },
+         { "<", OperatorType.LessThan },
+         { ">", OperatorType.GreaterThan },
+         { "!", OperatorType.Not },
+         { "drop", OperatorType.Drop },
       };
    }
 
@@ -28,5 +34,11 @@ namespace ApilaLang {
       Duplicate, /* Duplicates the top element in the stack */
       Goto, /* Jumps to the specified label. Label is specified AFTER the goto keyword */
       Sleep, /* Sleeps for the specified amount of milliseconds */
+      If, /* Curly braces */
+      Equals, /* Checks if the top two elements in the stack are equal */
+      LessThan, /* Checks if the second element is less than top element */
+      GreaterThan, /* Checks if the second element is greater than top element */
+      Not, /* Negates the top element in the stack */
+      Drop, /* Removes the top element in the stack */
    }
 }
