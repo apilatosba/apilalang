@@ -21,6 +21,7 @@ namespace ApilaLang {
          { ">", OperatorType.GreaterThan },
          { "!", OperatorType.Not },
          { "drop", OperatorType.Drop },
+         { "%", OperatorType.Modulo },
       };
    }
 
@@ -40,5 +41,6 @@ namespace ApilaLang {
       GreaterThan, /* Checks if the second element is greater than top element */
       Not, /* Negates the top element in the stack */
       Drop, /* Removes the top element in the stack */
+      Modulo,
    }
 }

@@ -219,6 +219,14 @@ namespace ApilaLang {
                            commandBuffer.Add(() => stack.Pop());
                            break;
                         }
+                        case OperatorType.Modulo: {
+                           commandBuffer.Add(() => {
+                              double first = stack.Pop();
+                              double second = stack.Pop();
+                              stack.Push(second % first);
+                           });
+                           break;
+                        }
                      }
                      break;
                   }
