@@ -1,3 +1,6 @@
-1 if {
+
+.fun {
    3 print
 }
+
+fun
