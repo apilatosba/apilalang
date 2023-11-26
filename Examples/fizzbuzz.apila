@@ -1,0 +1,24 @@
+1
+
+loop: {
+   dup 100 = if {
+      goto end
+   }
+   
+   dup 3 % 0 = if {
+      dup 5 % 0 = if {
+         33333 print
+      } else {
+         11111 print
+      }
+   } else {
+      dup 5 % 0 = if {
+         22222 print
+      } else {
+         dup print
+      }
+   }
+
+   1 +  
+} goto loop
+end:

@@ -2,7 +2,7 @@
   "profiles": {
     "ApilaLang": {
       "commandName": "Project",
-      "commandLineArgs": "apila.apila",
+      "commandLineArgs": "../Examples/fizzbuzz.apila",
       "workingDirectory": "C:\\Users\\abdul\\source\\repos\\ApilaLang\\ApilaLang"
     }
   }
