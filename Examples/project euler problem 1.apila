@@ -1,0 +1,25 @@
+0 0
+
+loop: 
+   dup 1000 = if {
+      goto exit
+   }
+
+   dup 3 % 0 = if {
+      dup 
+      1 2 switch
+      +
+      0 1 switch
+   } else {
+      dup 5 % 0 = if {
+         dup
+         1 2 switch
+         +
+         0 1 switch
+      }
+   }
+
+   1 +
+goto loop
+exit:
+drop print

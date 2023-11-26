@@ -58,6 +58,36 @@ loop: {
 } goto loop
 end:
 ```
+
+### project euler problem 1.apila
+The question: https://projecteuler.net/problem=1
+``` apila
+0 0
+
+loop: 
+   dup 1000 = if {
+      goto exit
+   }
+
+   dup 3 % 0 = if {
+      dup 
+      1 2 switch
+      +
+      0 1 switch
+   } else {
+      dup 5 % 0 = if {
+         dup
+         1 2 switch
+         +
+         0 1 switch
+      }
+   }
+
+   1 +
+goto loop
+exit:
+drop print
+```
 ## Keywords/Operators
 - \+: Pops two elements, sums them up, pushes the result
 - \-: Pops two elements, substracts them, pushes the result
@@ -85,3 +115,4 @@ Forth: https://en.wikipedia.org/wiki/Forth_(programming_language)
 Porth: https://gitlab.com/tsoding/porth  
 Stack-oriented programming: https://en.wikipedia.org/wiki/Stack-oriented_programming  
 Reverse Polish Notation: https://en.wikipedia.org/wiki/Reverse_Polish_notation  
+Project Euler: https://projecteuler.net/
