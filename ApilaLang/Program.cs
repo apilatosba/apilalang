@@ -27,7 +27,6 @@ namespace ApilaLang {
       //static Dictionary<CurlyBrace, CurlyBrace> curlyBracesOfIfs = new Dictionary<CurlyBrace, CurlyBrace>();
       static List<Action> commandBuffer = new List<Action>();
       static int indexOfCommandToExecute = 0;
-      static bool shouldExecuteElseBlock;
 
       static void Main(string[] args) {
          // Command line arguments
@@ -181,11 +180,18 @@ namespace ApilaLang {
 
                                  if (top == 0) {
                                     indexOfCommandToExecute = curlyBraces[ii].matchingCurlyBrace.commandIndex - 1; // Substract 1 because the for loop will add 1 to it
-                                    shouldExecuteElseBlock = true;
+                                    
+                                    int tokenIndexOfElse = curlyBraces[ii].matchingCurlyBrace.tokenIndex + 1;
+                                    if (FindTokenType(apilaCode[tokenIndexOfElse]) == TokenType.Else) {
+                                       elses.Where(e => e.tokenIndex == tokenIndexOfElse).First().shouldExecute = true;
+                                    }
                                  } else {
                                     //indexOfCommandToExecute = curlyBraces[ii].commandIndex;
                                     // Or do nothing which does the same thing. Both of them continue the execution without jumping.
-                                    shouldExecuteElseBlock = false;
+                                    int tokenIndexOfElse = curlyBraces[ii].matchingCurlyBrace.tokenIndex + 1;
+                                    if (FindTokenType(apilaCode[tokenIndexOfElse]) == TokenType.Else) {
+                                       elses.Where(e => e.tokenIndex == tokenIndexOfElse).First().shouldExecute = false;
+                                    }
                                  }
                               });
                            }
@@ -257,11 +263,13 @@ namespace ApilaLang {
                         return;
                      } else {
                         int ii = curlyBraces.Count; /* Maybe this ii thingy is not be a bug. I have to think about it */
+                        int iii = i;
 
                         elses.Add(new Else(ii - 1, ii, i)); // Putting i here is no problem because it is executed directly here but not after in the commandBuffer
 
                         commandBuffer.Add(() => {
-                           if (shouldExecuteElseBlock) {
+                           Else e = elses.Where(e => e.tokenIndex == iii).First();
+                           if (e.shouldExecute) {
                               //indexOfCommandToExecute = curlyBraces[ii].commandIndex;
                               // Or do nothing which does the same thing. Both of them continue the execution without jumping.
                            } else {

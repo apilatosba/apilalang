@@ -3,6 +3,7 @@
       public int indexOfPrecedingCurlyBrace;
       public int indexOfFollowingCurlyBrace;
       public int tokenIndex;
+      public bool shouldExecute;
 
       public Else(int indexOfPrecedingCurlyBrace, int indexOfFollowingCurlyBrace, int tokenIndex) {
          this.indexOfPrecedingCurlyBrace = indexOfPrecedingCurlyBrace;
