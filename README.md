@@ -89,23 +89,23 @@ exit:
 drop print
 ```
 ## Keywords/Operators
-- \+: Pops two elements, sums them up, pushes the result
-- \-: Pops two elements, substracts them, pushes the result
-- \*: Pops two elements, multiplies them, pushes the result
-- /: Pops two elements, divides them, pushes the result
-- %: Pops two elements, pushes the remainder
-- print: Pops one element and outputs it to the console with a trailing new line character
-- switch: Pops two elements, switches the order of corresponding elements in the stack. Popped elements are used as index. For example consider following program "10 20 30 40 0 2 switch print print print print" output is the following "20 30 40 10" which means stack was this "10 40 30 20" so it switched the 20 and 40. It is indexed from the top. 0 corresponds to 40 and 2 corresponds to 20.
-- dup: Duplicates the top element in the stack
-- goto: Jumps to the specified label. Label is specified AFTER the goto keyword
-- sleep: Pops one element and sleeps that amount of milliseconds
-- drop: Removes the top element in the stack
-- if: Pops one element, compares the value of it to zero, does conditional jump if necessary. Scopes are determined with curly braces
-- else: Sibling of if
-- =: Checks if the top two elements in the stack are equal
-- <: Checks if the second element is less than top element
-- \>: Checks if the second element is greater than top element
-- !: Negates the top element in the stack
+- __\+__: Pops two elements, sums them up, pushes the result
+- __\-__: Pops two elements, substracts them, pushes the result
+- __\*__: Pops two elements, multiplies them, pushes the result
+- __/__: Pops two elements, divides them, pushes the result
+- __%__: Pops two elements, pushes the remainder
+- __print__: Pops one element and outputs it to the console with a trailing new line character
+- __switch__: Pops two elements, switches the order of corresponding elements in the stack. Popped elements are used as index. For example consider following program "10 20 30 40 0 2 switch print print print print" output is the following "20 30 40 10" which means stack was this "10 40 30 20" so it switched the 20 and 40. It is indexed from the top. 0 corresponds to 40 and 2 corresponds to 20.
+- __dup__: Duplicates the top element in the stack
+- __goto__: Jumps to the specified label. Label is specified AFTER the goto keyword
+- __sleep__: Pops one element and sleeps that amount of milliseconds
+- __drop__: Removes the top element in the stack
+- __if__: Pops one element, compares the value of it to zero, does conditional jump if necessary. Scopes are determined with curly braces
+- __else__: Sibling of if
+- __=__: Checks if the top two elements in the stack are equal
+- __<__: Checks if the second element is less than top element
+- __\>__: Checks if the second element is greater than top element
+- __!__: Negates the top element in the stack
 ## Notes
 There are no data types only 64 bit floating point number so it is more a calculator than a programming language.  
 Curly braces are necessary for "if" and "else". Other than that they can be used for grouping/scoping.
